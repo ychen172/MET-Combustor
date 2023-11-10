@@ -53,7 +53,7 @@ def holePattCalc(numHTot,fracH,nRow,charaLen,dj,Dl=[9e9,10e9],isFront=False):
         RadH = np.linspace(0.5*Dli+AGap,0.5*Dlo-AGap,nRow) #[m][Array]Radius array of the frontal holes
     else:
         RadH = Dl[0]/2
-    TGap = np.sin(((2*np.pi)/numHRow)*0.5)*RadH #Tangential Gap[m][Array]
+    TGap = np.sin(((2*np.pi)/numHRow)*0.5)*RadH*2 #Tangential Gap[m][Array]
     AGapRatio = (AGap-dj)/dj
     TGapRatio = (TGap-dj)/dj
     return numHRow,RadH,AGap,AGapRatio,TGapRatio
