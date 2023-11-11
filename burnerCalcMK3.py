@@ -195,9 +195,9 @@ qsz = 0.5*(rhopz*Upz**2) #Secondary zone dynamic pressure [Pa]
 qdz = 0.5*(rhosz*Usz**2) #Dilution zone dynamic pressure [Pa]
 
 #Calculate jet velocity
-Ujpz = np.sqrt((Ptlo-Ppz)/rhot3) #Primary zone jet velocity [m/s]
-Ujsz = np.sqrt((Ptlo-Ppz)/rhot3) #Secondary zone jet velocity [m/s]
-Ujdz = np.sqrt((Ptlo-Psz)/rhot3) #Dilution zone jet velocity [m/s]
+Ujpz = np.sqrt(2*(Ptlo-Ppz)/rhot3) #Primary zone jet velocity [m/s]
+Ujsz = np.sqrt(2*(Ptlo-Ppz)/rhot3) #Secondary zone jet velocity [m/s]
+Ujdz = np.sqrt(2*(Ptlo-Psz)/rhot3) #Dilution zone jet velocity [m/s]
 print('Ujpz: '+str(Ujpz)+' m/s Ujsz: '+str(Ujsz)+' m/s Ujdz: '+str(Ujdz)+' m/s')
 
 #Calculate total effect jet area
