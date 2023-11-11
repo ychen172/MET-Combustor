@@ -215,7 +215,7 @@ print('AjDzTEff: '+str(AjDzTEff)+' m2 AjDzTEffVer2: '+str(AjDzTEffVer2)+' m2')
 gas.TPY = Tpz,Ppz,"C3H8:1"
 rhoFuel = gas.density_mass #[kg/m3]
 UjFuel = Ujpz*velRatJetFuel #[m/s]
-PtFuelUp = (UjFuel**2)*rhoFuel + Ppz #[Pa] Upstream pressure needed for JetFuel
+PtFuelUp = 0.5*(UjFuel**2)*rhoFuel + Ppz #[Pa] Upstream pressure needed for JetFuel
 AjFuelTEff = mdotf/(rhoFuel*UjFuel) #[m2] Total area for the JetFuel
 print("rhoFuel: "+str(rhoFuel)+" kg/m3 UjFuel: "+str(UjFuel)+" m/s PtFuelUp: "+str(PtFuelUp)+" Pa AjFuelTEff: "+str(AjFuelTEff)+" m2")
 
