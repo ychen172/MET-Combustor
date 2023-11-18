@@ -96,6 +96,7 @@ thiPipeFuel = 0.508/1000 #[m] Thickness of copper and stainless steel pipeline
 thiPipeAir = 0.508/1000 #[m] Thickness of copper and stainless steel pipeline
 # Reference parameters
 Patm  = 101325  #Reference atmosphere pressure [Pa]
+Tfuel = 298 #Temperature of fuel before injection K
 # Hole Pattern
 fracPzFront = 0.60 
 fracPzOut = 0.40
@@ -221,7 +222,7 @@ AjSzTEff = AjSzTEff*AeffCorrFact
 AjDzTEff = AjDzTEff*AeffCorrFact
 
 #Compute Fuel Pipe Area
-gas.TPY = Tpz,Ppz,"C3H8:1"
+gas.TPY = Tfuel,Ppz,"C3H8:1"
 rhoFuel = gas.density_mass #[kg/m3]
 UjFuel = Ujpz*velRatJetFuel #[m/s]
 PtFuelUp = 0.5*(UjFuel**2)*rhoFuel + Ppz #[Pa] Upstream pressure needed for JetFuel
