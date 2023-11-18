@@ -214,6 +214,12 @@ print('AjDzTEff: '+str(AjDzTEff)+' m2')
 print('Calculated Total Jet Area: '+ str(AjPzTEff+AjSzTEff+AjDzTEff)+' m2')
 print('Estimated Total Jet Area from Ptloss: '+ str(AjTEffEst)+' m2')
 
+#Correct total effect jet area(scaled the calculated characteristic jet total effective area such that the sum of area match with estimated total area)
+AeffCorrFact = AjTEffEst/(AjPzTEff+AjSzTEff+AjDzTEff) #Scaling factor Area Estimated over Area Calculated
+AjPzTEff = AjPzTEff*AeffCorrFact
+AjSzTEff = AjSzTEff*AeffCorrFact
+AjDzTEff = AjDzTEff*AeffCorrFact
+
 #Compute Fuel Pipe Area
 gas.TPY = Tpz,Ppz,"C3H8:1"
 rhoFuel = gas.density_mass #[kg/m3]
