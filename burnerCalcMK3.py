@@ -85,10 +85,9 @@ fracLossPz = 0.40 #Primary zone
 fracLossSz = 0.40 #Secondary zone
 TauTot = 4e-3 #Total residence time [s]
 LszLpzR = 2.2 #length of secondary zone over primary zone 
-PHRpz = 0.112 #Fraction of the liner height for penetration
+PHRjpz = 0.112 #Fraction of the liner height for penetration
 PHRsz = 0.5 #Fraction of the liner height for penetration
 PHRdz = 0.10 #Fraction of the liner height for penetration
-Ent2JetRat = 1.0 #Entrained peneration to Jet Peneration Ratio 
 velRatJetFuel = 7.4 #Ufuel/UJetAirPz
 fracPzFuelPipe = 0.194 #Frac of primary zone air use for vaporization
 numPzFuelInj = 10 #Number of primary zone fuel injectors
@@ -226,32 +225,32 @@ gas.TPY = Tfuel,Ppz,"C3H8:1"
 rhoFuel = gas.density_mass #[kg/m3]
 UjFuel = Ujpz*velRatJetFuel #[m/s]
 PtFuelUp = 0.5*(UjFuel**2)*rhoFuel + Ppz #[Pa] Upstream pressure needed for JetFuel
-AjFuelTEff = mdotf/(rhoFuel*UjFuel) #[m2] Total area for the JetFuel
-print("rhoFuel: "+str(rhoFuel)+" kg/m3 UjFuel: "+str(UjFuel)+" m/s PtFuelUp: "+str(PtFuelUp)+" Pa AjFuelTEff: "+str(AjFuelTEff)+" m2")
+ApPzFuelTEff = mdotf/(rhoFuel*UjFuel) #[m2] Total area for the JetFuel
+print("rhoFuel: "+str(rhoFuel)+" kg/m3 UjFuel: "+str(UjFuel)+" m/s PtFuelUp: "+str(PtFuelUp)+" Pa ApPzFuelTEff: "+str(ApPzFuelTEff)+" m2")
 
 #Compute Air Pipe Area
 mdotaPzPipe = mdotaPz*fracPzFuelPipe #Used for vaporizer
 mdotaPzJet = mdotaPz*(1-fracPzFuelPipe) #Used for liner cooling
-APipeAirTEff = mdotaPzPipe/(rho3*Ujpz) #Effective total pipe air area
-APipeMixTEff = AjFuelTEff+APipeAirTEff #Effective total pipe mixture area
-AJetPzAirTEff = AjPzTEff-APipeAirTEff #Effective total jet pz air area
-AjFuelEff = AjFuelTEff/numPzFuelInj 
-APipeMixEff = APipeMixTEff/numPzFuelInj
-djFuelEff = np.sqrt(AjFuelEff*4/np.pi)
+ApPzAirTEff = AjPzTEff*fracPzFuelPipe #Effective total air area for primary zone vaporizer
+AjPzAirTEff = AjPzTEff*(1-fracPzFuelPipe) #Effective total air area for primary zone cooling
+ApPzFuelEff = ApPzFuelTEff/numPzFuelInj #Effective fuel area for primary zone vaporizer
+ApPzAirEff = ApPzAirTEff/numPzFuelInj #Effective air area for primary zone vaporizer
+dpPzFuelEff = np.sqrt(ApPzFuelEff*4/np.pi) #Effective fuel diameter for primary zone vaporizer
 dPipeMixEff = np.sqrt(APipeMixEff*4/np.pi)
-print("djFuelEff: "+str(djFuelEff)+" m dPipeMixEff: "+str(dPipeMixEff)+" m")
+print("dpPzFuelEff: "+str(dpPzFuelEff)+" m dPipeMixEff: "+str(dPipeMixEff)+" m")
 
 #Calculate effective jet dimater
 JGRpz = (0.5*rho3*Ujpz**2)/(qpz) #Dynamic pressure ratio between jet and gas
 JGRsz = (0.5*rho3*Ujsz**2)/(qsz) #Dynamic pressure ratio between jet and gas
 JGRdz = (0.5*rho3*Ujdz**2)/(qdz) #Dynamic pressure ratio between jet and gas
-MRPz = (mdotaPzPipe+mdotf)/(mdotaPzPipe+mdotf+mdotaPzJet)
-MRSz = (mdotaPzPipe+mdotf+mdotaPzJet)/(mdotaPzPipe+mdotf+mdotaPzJet+mdotaSz)
-MRDz = (mdotaPzPipe+mdotf+mdotaPzJet+mdotaSz)/(mdotaPzPipe+mdotf+mdotaPzJet+mdotaSz+mdotaDz)
-djeffPz = (PHRpz*Hl/Ent2JetRat)/(1.25*JGRpz**0.5*MRPz) #Primary zone jet diameter [m]
-djeffSz = (PHRsz*Hl/Ent2JetRat)/(1.25*JGRsz**0.5*MRSz) #Primary zone jet diameter [m]
-djeffDz = (PHRdz*Hl/Ent2JetRat)/(1.25*JGRdz**0.5*MRDz) #Primary zone jet diameter [m]
-print('djeffPz: '+str(djeffPz)+' m djeffSz: '+str(djeffSz)+' m djeffDz: '+str(djeffDz)+' m')
+MRjPz = (mdotaPz+mdotf)/((mdotaPz+mdotf)+mdotaPzJet) #Mass flow ratio for primary zone cooling (mgas/(mgas+mjet))
+MRpPz = (mdotaPz+mdotf)/((mdotaPz+mdotf)+mdotaPzPipe) #Mass flow ratio for primary zone vaporizer (mgas/(mgas+mjet))
+MRSz = (mdotaPz+mdotf)/((mdotaPz+mdotf)+mdotaSz) #Mass flow ratio for secondary zone (mgas/(mgas+mjet))
+MRDz = (mdotaPz+mdotf+mdotaSz)/((mdotaPz+mdotf+mdotaSz)+mdotaDz) #Mass flow ratio (mgas/(mgas+mjet))
+djeffjPz = (PHRjpz*Hl)/(1.25*JGRpz**0.5*MRjPz) #Effective air diameter for primary zone cooling [m]
+djeffSz = (PHRsz*Hl)/(1.25*JGRsz**0.5*MRSz) #Effective air diameter for secondary zone cooling [m]
+djeffDz = (PHRdz*Hl)/(1.25*JGRdz**0.5*MRDz) #Effective air diameter for dilution zone cooling [m]
+print('djeffjPz: '+str(djeffjPz)+' m djeffSz: '+str(djeffSz)+' m djeffDz: '+str(djeffDz)+' m')
 
 #Calculate number of holes
 numHpz = AJetPzAirTEff/(0.25*np.pi*djeffPz**2)
