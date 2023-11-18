@@ -172,35 +172,35 @@ dPtliner = Ptlo-Pt4 #[Pa]
 Ptpz = Ptlo - dPtliner*(fracLossPz) #[Pa]
 Ptsz = Ptpz - dPtliner*(fracLossSz) #[Pa]
 Ptdz = Pt4 #[Pa]
-Ppz = least_squares(Pres_Balance,[Ptpz*0.99],bounds=(Patm,Ptpz),args = [[Ptpz,gam3,R3,phiPz,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf)]]).x[0]
-dummy,Upz,outTemp = Pres_Calc(Ppz,Ptpz,gam3,R3,phiPz,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf))
+Ppz = least_squares(Pres_Balance,[Ptpz*0.99],bounds=(Patm,Ptpz),args = [[Ptpz,gam4,R4,phiPz,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf)]]).x[0]
+dummy,Upz,outTemp = Pres_Calc(Ppz,Ptpz,gam4,R4,phiPz,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf))
 print('Residual: '+str(abs(Upz-dummy)))
 Tpz = outTemp[0]
 rhopz = outTemp[1]
 SOSpz = outTemp[2]
 print('Upz: '+str(Upz)+' m/s Tpz: '+str(Tpz)+' K rhopz: '+str(rhopz)+' kg/m3 SOSpz: '+str(SOSpz)+' m/s')
-Psz = least_squares(Pres_Balance,[Ptsz*0.99],bounds=(Patm,Ptsz),args = [[Ptsz,0.5*(gam3+gam4),0.5*(R3+R4),phiSz,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+mdotaSz)]]).x[0]
-dummy,Usz,outTemp = Pres_Calc(Psz,Ptsz,0.5*(gam3+gam4),0.5*(R3+R4),phiSz,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+mdotaSz))
+Psz = least_squares(Pres_Balance,[Ptsz*0.99],bounds=(Patm,0.5*(Ptpz+Ptsz)),args = [[0.5*(Ptpz+Ptsz),gam4,R4,0.5*(phiPz+phiSz),YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+0.5*mdotaSz)]]).x[0]
+dummy,Usz,outTemp = Pres_Calc(Psz,0.5*(Ptpz+Ptsz),gam4,R4,0.5*(phiPz+phiSz),YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+0.5*mdotaSz))
 print('Residual: '+str(abs(Usz-dummy)))
 Tsz = outTemp[0]
 rhosz = outTemp[1]
 SOSsz = outTemp[2]
 print('Usz: '+str(Usz)+' m/s Tsz: '+str(Tsz)+' K rhosz: '+str(rhosz)+' kg/m3 SOSsz: '+str(SOSsz)+' m/s')
-Pdz = least_squares(Pres_Balance,[Ptdz*0.99],bounds=(Patm,Ptdz),args = [[Ptdz,gam4,R4,phi4,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+mdotaSz+mdotaDz)]]).x[0]
-dummy,Udz,outTemp = Pres_Calc(Pdz,Ptdz,gam4,R4,phi4,YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+mdotaSz+mdotaDz))
+Pdz = least_squares(Pres_Balance,[Ptdz*0.99],bounds=(Patm,0.5*(Ptsz+Ptdz)),args = [[0.5*(Ptsz+Ptdz),gam4,R4,0.5*(phiSz+phi4),YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+mdotaSz+0.5*mdotaDz)]]).x[0]
+dummy,Udz,outTemp = Pres_Calc(Pdz,0.5*(Ptsz+Ptdz),gam4,R4,0.5*(phiSz+phi4),YFuel,YOxid,Tt3,Aft,(mdotaPz+mdotf+mdotaSz+0.5*mdotaDz))
 print('Residual: '+str(abs(Udz-dummy)))
 Tdz = outTemp[0]
 rhodz = outTemp[1]
 SOSdz = outTemp[2]
 print('Udz: '+str(Udz)+' m/s Tdz: '+str(Tdz)+' K rhodz: '+str(rhodz)+' kg/m3 SOSdz: '+str(SOSdz)+' m/s')
 qpz = 0.5*(rhopz*Upz**2) #Primary zone dynamic pressure [Pa]
-qsz = 0.5*(rhopz*Upz**2) #Secondary zone dynamic pressure [Pa]
-qdz = 0.5*(rhosz*Usz**2) #Dilution zone dynamic pressure [Pa]
+qsz = 0.5*(rhosz*Usz**2) #Secondary zone dynamic pressure [Pa]
+qdz = 0.5*(rhodz*Udz**2) #Dilution zone dynamic pressure [Pa]
 
 #Calculate jet velocity
 Ujpz = np.sqrt(2*(Ptlo-Ppz)/rho3) #Primary zone jet velocity [m/s]
-Ujsz = np.sqrt(2*(Ptlo-Ppz)/rho3) #Secondary zone jet velocity [m/s]
-Ujdz = np.sqrt(2*(Ptlo-Psz)/rho3) #Dilution zone jet velocity [m/s]
+Ujsz = np.sqrt(2*(Ptlo-Psz)/rho3) #Secondary zone jet velocity [m/s]
+Ujdz = np.sqrt(2*(Ptlo-Pdz)/rho3) #Dilution zone jet velocity [m/s]
 print('Ujpz: '+str(Ujpz)+' m/s Ujsz: '+str(Ujsz)+' m/s Ujdz: '+str(Ujdz)+' m/s')
 
 #Calculate total effect jet area
