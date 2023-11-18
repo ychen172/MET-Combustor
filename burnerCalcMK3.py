@@ -207,12 +207,12 @@ print('Ujpz: '+str(Ujpz)+' m/s Ujsz: '+str(Ujsz)+' m/s Ujdz: '+str(Ujdz)+' m/s')
 AjPzTEff = mdotaPz/(rho3*Ujpz) #Total effective jet area for primary zone [m2]
 AjSzTEff = mdotaSz/(rho3*Ujsz) #Total effective jet area for secondary zone [m2]
 AjDzTEff = mdotaDz/(rho3*Ujdz) #Total effective jet area for primary zone [m2]
-AjPzTEffVer2 = Aref/np.sqrt((Ptlo-Ppz)/qref) #Second version [m2]
-AjSzTEffVer2 = Aref/np.sqrt((Ptlo-Ppz)/qref) #Second version [m2]
-AjDzTEffVer2 = Aref/np.sqrt((Ptlo-Psz)/qref) #Second version [m2] (Maybe this formula is only applicable to Dz)
-print('AjPzTEff: '+str(AjPzTEff)+' m2 AjPzTEffVer2: '+str(AjPzTEffVer2)+' m2')
-print('AjSzTEff: '+str(AjSzTEff)+' m2 AjSzTEffVer2: '+str(AjSzTEffVer2)+' m2')
-print('AjDzTEff: '+str(AjDzTEff)+' m2 AjDzTEffVer2: '+str(AjDzTEffVer2)+' m2')
+AjTEffEst = Aref/np.sqrt(dPtliner/qref) #Reference Estimated total jet hole area version [m2]
+print('AjPzTEff: '+str(AjPzTEff)+' m2')
+print('AjSzTEff: '+str(AjSzTEff)+' m2')
+print('AjDzTEff: '+str(AjDzTEff)+' m2')
+print('Calculated Total Jet Area: '+ str(AjPzTEff+AjSzTEff+AjDzTEff)+' m2')
+print('Estimated Total Jet Area from Ptloss: '+ str(AjTEffEst)+' m2')
 
 #Compute Fuel Pipe Area
 gas.TPY = Tpz,Ppz,"C3H8:1"
