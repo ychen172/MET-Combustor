@@ -114,18 +114,21 @@ nRowDzIn = 14
 #Reference Area
 Aref = (np.pi/4)*(Dco**2 - Dci**2) #Reference area [m2]
 Ainlet = (np.pi/4)*(Dinleto**2 - Dinleti**2) #Inlet area [m2]
+#Mach Numbers
+Maref = fsolve(DM_machcalc,[0.4],args = [mdot3,R3,Tt3,Pt3,Aref,gam3])[0] #Reference Mach number & try initial guess between [0 and 1]
+print('Maref: '+str(Maref))
+Mainlet = fsolve(DM_machcalc,[0.4],args = [mdot3,R3,Tt3,Pt3,Ainlet,gam3])[0] #Reference Mach number & try initial guess between [0 and 1]
+print('Mainlet: '+str(Mainlet))
+#Reference Dynamic Pressure
 rhot3 = Pt3/(R3*Tt3) #Total density [kg/m3]
-Uref = mdot3/(rhot3*Aref) #Reference velocity [m/s]
-qref = (rhot3*(Uref**2))/2 #Reference dynamic pressure [Pa]
+rho3 = rhot3*(1+0.5*(gam3-1)*(Mainlet**2))**(1/(1-gam3))
+Uref = mdot3/(rho3*Aref) #Reference velocity [m/s]
+qref = (rho3*(Uref**2))/2 #Reference dynamic pressure [Pa]
 dPt34 = Pt3-Pt4 #Stagnation pressure loss across combustor [Pa]
 ArefVer2 = np.sqrt((R3/2)*((mdot3*np.sqrt(Tt3)/Pt3)**2)*((dPt34/qref)/(dPt34/Pt3))) #Reference area version 2 [m2]
 print('Aref: '+str(Aref)+' m2 while ArefVer2: '+str(ArefVer2)+' m2')
 print('Uref: '+str(Uref)+' m/s and qref: '+str(qref)+' Pa')
 #Liner Area
-Maref = fsolve(DM_machcalc,[0.4],args = [mdot3,R3,Tt3,Pt3,Aref,gam3])[0] #Reference Mach number & try initial guess between [0 and 1]
-print('Maref: '+str(Maref))
-Mainlet = fsolve(DM_machcalc,[0.4],args = [mdot3,R3,Tt3,Pt3,Ainlet,gam3])[0] #Reference Mach number & try initial guess between [0 and 1]
-print('Mainlet: '+str(Mainlet))
 Aft = (mdot4*np.sqrt(R4*Tt4))/(Pt4*DM_Fun(gam4,Ma4)) #Liner area [m2]
 mdotf = mdot4-mdot3 #Total fuel flow rate [kg/s]
 AftVer2 = (1.621e-2)*((mdotf*np.sqrt(Tt3))/(Pt3/Patm))*np.sqrt(Pt3/dPt34) #Liner area version 2 [m2] 
@@ -195,15 +198,15 @@ qsz = 0.5*(rhopz*Upz**2) #Secondary zone dynamic pressure [Pa]
 qdz = 0.5*(rhosz*Usz**2) #Dilution zone dynamic pressure [Pa]
 
 #Calculate jet velocity
-Ujpz = np.sqrt(2*(Ptlo-Ppz)/rhot3) #Primary zone jet velocity [m/s]
-Ujsz = np.sqrt(2*(Ptlo-Ppz)/rhot3) #Secondary zone jet velocity [m/s]
-Ujdz = np.sqrt(2*(Ptlo-Psz)/rhot3) #Dilution zone jet velocity [m/s]
+Ujpz = np.sqrt(2*(Ptlo-Ppz)/rho3) #Primary zone jet velocity [m/s]
+Ujsz = np.sqrt(2*(Ptlo-Ppz)/rho3) #Secondary zone jet velocity [m/s]
+Ujdz = np.sqrt(2*(Ptlo-Psz)/rho3) #Dilution zone jet velocity [m/s]
 print('Ujpz: '+str(Ujpz)+' m/s Ujsz: '+str(Ujsz)+' m/s Ujdz: '+str(Ujdz)+' m/s')
 
 #Calculate total effect jet area
-AjPzTEff = mdotaPz/(rhot3*Ujpz) #Total effective jet area for primary zone [m2]
-AjSzTEff = mdotaSz/(rhot3*Ujsz) #Total effective jet area for secondary zone [m2]
-AjDzTEff = mdotaDz/(rhot3*Ujdz) #Total effective jet area for primary zone [m2]
+AjPzTEff = mdotaPz/(rho3*Ujpz) #Total effective jet area for primary zone [m2]
+AjSzTEff = mdotaSz/(rho3*Ujsz) #Total effective jet area for secondary zone [m2]
+AjDzTEff = mdotaDz/(rho3*Ujdz) #Total effective jet area for primary zone [m2]
 AjPzTEffVer2 = Aref/np.sqrt((Ptlo-Ppz)/qref) #Second version [m2]
 AjSzTEffVer2 = Aref/np.sqrt((Ptlo-Ppz)/qref) #Second version [m2]
 AjDzTEffVer2 = Aref/np.sqrt((Ptlo-Psz)/qref) #Second version [m2] (Maybe this formula is only applicable to Dz)
@@ -222,7 +225,7 @@ print("rhoFuel: "+str(rhoFuel)+" kg/m3 UjFuel: "+str(UjFuel)+" m/s PtFuelUp: "+s
 #Compute Air Pipe Area
 mdotaPzPipe = mdotaPz*fracPzFuelPipe #Used for vaporizer
 mdotaPzJet = mdotaPz*(1-fracPzFuelPipe) #Used for liner cooling
-APipeAirTEff = mdotaPzPipe/(rhot3*Ujpz) #Effective total pipe air area
+APipeAirTEff = mdotaPzPipe/(rho3*Ujpz) #Effective total pipe air area
 APipeMixTEff = AjFuelTEff+APipeAirTEff #Effective total pipe mixture area
 AJetPzAirTEff = AjPzTEff-APipeAirTEff #Effective total jet pz air area
 AjFuelEff = AjFuelTEff/numPzFuelInj 
@@ -232,9 +235,9 @@ dPipeMixEff = np.sqrt(APipeMixEff*4/np.pi)
 print("djFuelEff: "+str(djFuelEff)+" m dPipeMixEff: "+str(dPipeMixEff)+" m")
 
 #Calculate effective jet dimater
-JGRpz = (0.5*rhot3*Ujpz**2)/(qpz) #Dynamic pressure ratio between jet and gas
-JGRsz = (0.5*rhot3*Ujsz**2)/(qsz) #Dynamic pressure ratio between jet and gas
-JGRdz = (0.5*rhot3*Ujdz**2)/(qdz) #Dynamic pressure ratio between jet and gas
+JGRpz = (0.5*rho3*Ujpz**2)/(qpz) #Dynamic pressure ratio between jet and gas
+JGRsz = (0.5*rho3*Ujsz**2)/(qsz) #Dynamic pressure ratio between jet and gas
+JGRdz = (0.5*rho3*Ujdz**2)/(qdz) #Dynamic pressure ratio between jet and gas
 MRPz = (mdotaPzPipe+mdotf)/(mdotaPzPipe+mdotf+mdotaPzJet)
 MRSz = (mdotaPzPipe+mdotf+mdotaPzJet)/(mdotaPzPipe+mdotf+mdotaPzJet+mdotaSz)
 MRDz = (mdotaPzPipe+mdotf+mdotaPzJet+mdotaSz)/(mdotaPzPipe+mdotf+mdotaPzJet+mdotaSz+mdotaDz)
@@ -250,9 +253,9 @@ numHdz = AjDzTEff/(0.25*np.pi*djeffDz**2)
 print('numHpz: '+str(numHpz)+' numHsz: '+str(numHsz)+' numHdz: '+str(numHdz))
 
 #Compute actual hole size
-JARpz = (0.5*rhot3*Ujpz**2)/qref # Jet annulus dynamic pressure ratio for primary zone
-JARsz = (0.5*rhot3*Ujsz**2)/qref # Jet annulus dynamic pressure ratio for primary zone
-JARdz = (0.5*rhot3*Ujdz**2)/qref # Jet annulus dynamic pressure ratio for primary zone
+JARpz = (0.5*rho3*Ujpz**2)/qref # Jet annulus dynamic pressure ratio for primary zone
+JARsz = (0.5*rho3*Ujsz**2)/qref # Jet annulus dynamic pressure ratio for primary zone
+JARdz = (0.5*rho3*Ujdz**2)/qref # Jet annulus dynamic pressure ratio for primary zone
 alpha = 0.25 #impericial factor
 CdJetpz = (1.25*(JARpz-1))/(4*JARpz**2 - JARpz*(2-alpha)**2)**0.5 # Primary zone discharge coefficient
 CdPipepz = (1.65*(JARpz-1))/(4*JARpz**2 - JARpz*(2-alpha)**2)**0.5 # Primary zone discharge coefficient
