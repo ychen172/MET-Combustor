@@ -112,7 +112,7 @@ fracDzOut = 0.6
 nRowDzOut = 14
 nRowDzIn = 14
 ### User Input End
-
+print("Combustor Design Python Code: \n\n\n\n\n\n")
 #Print out operating conditions
 print("####Print out operating conditions####")
 print("======================================")
@@ -449,7 +449,7 @@ if numHjpz>0.9:
         print("Primary Zone Inner Face has "+str(int(numHpzInRow))+" holes per row &&&& "+str(nRowPzIn)+" rows with diameter "+str(np.round(djPz*1e3,3))+" mm")
         print("Primary Zone Inner Rows Axial Locations: "+str(np.round(AGapHpzIn*1e3,3))+" mm")
         print("Primary Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHpzInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHpzInRatio,3)))
-    print("\n")
+    print(" ")
 if numHsz>0.9:
     if fracSzOut>0:        
         numHszOutRow,RadHszOut,AGapHszOut,AGapHszOutRatio,TGapHszOutRatio = holePattCalc(numHsz,fracSzOut,nRowSzOut,LenSz*fracHLenSz,djSz,Dl=[Dlo],isFront=False)
@@ -461,7 +461,7 @@ if numHsz>0.9:
         print("Secondary Zone Inner Face has "+str(int(numHszInRow))+" holes per row &&&& "+str(nRowSzIn)+" rows with diameter "+str(np.round(djSz*1e3,3))+" mm")
         print("Secondary Zone Inner Rows Axial Locations: "+str(np.round(AGapHszIn*1e3,3))+" mm")
         print("Secondary Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHszInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHszInRatio,3)))
-    print("\n")
+    print(" ")
 if numHdz>0.9:
     if fracDzOut>0:
         numHdzOutRow,RadHdzOut,AGapHdzOut,AGapHdzOutRatio,TGapHdzOutRatio = holePattCalc(numHdz,fracDzOut,nRowDzOut,LenDz,djDz,Dl=[Dlo],isFront=False)
@@ -473,5 +473,5 @@ if numHdz>0.9:
         print("Dilution Zone Inner Face has "+str(int(numHdzInRow))+" holes per row &&&& "+str(nRowDzIn)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
         print("Dilution Zone Inner Rows Axial Locations: "+str(np.round(AGapHdzIn*1e3,3))+" mm")
         print("Dilution Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHdzInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHdzInRatio,3)))
-    print("\n")
+    print(" ")
 print('end')
