@@ -58,7 +58,7 @@ def holePattCalc(numHTot,fracH,nRow,charaLen,dj,Dl=[9e9,10e9],isFront=False):
     TGap = np.sin(((2*np.pi)/numHRow)*0.5)*RadH*2 #Tangential Gap[m][Array]
     AGapRatio = (AGap-dj)/dj
     TGapRatio = (TGap-dj)/dj
-    return numHRow,RadH,AGap,AGapRatio,TGapRatio
+    return numHRow,RadH,AxiD,AGapRatio,TGapRatio
 
 ### User Input
 # Design switch
