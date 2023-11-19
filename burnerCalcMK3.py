@@ -453,11 +453,13 @@ if numHjpz>0.9:
 if numHsz>0.9:
     if fracSzOut>0:        
         numHszOutRow,RadHszOut,AGapHszOut,AGapHszOutRatio,TGapHszOutRatio = holePattCalc(numHsz,fracSzOut,nRowSzOut,LenSz*fracHLenSz,djSz,Dl=[Dlo],isFront=False)
+        AGapHszOut += LenPz #Add offset [m]
         print("Secondary Zone Outer Face Has "+str(int(numHszOutRow))+" holes per row &&&& "+str(nRowSzOut)+" rows with diameter "+str(np.round(djSz*1e3,3))+" mm")
         print("Secondary Zone Outer Rows Axial Locations: "+str(np.round(AGapHszOut*1e3,3))+" mm")
         print("Secondary Zone Outer Gap Ratio (Axial):"+str(np.round(AGapHszOutRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHszOutRatio,3)))
     if (1-fracSzOut)>0:
         numHszInRow,RadHszIn,AGapHszIn,AGapHszInRatio,TGapHszInRatio = holePattCalc(numHsz,(1-fracSzOut),nRowSzIn,LenSz*fracHLenSz,djSz,Dl=[DliNew],isFront=False)
+        AGapHszIn += LenPz #Add offset [m]
         print("Secondary Zone Inner Face has "+str(int(numHszInRow))+" holes per row &&&& "+str(nRowSzIn)+" rows with diameter "+str(np.round(djSz*1e3,3))+" mm")
         print("Secondary Zone Inner Rows Axial Locations: "+str(np.round(AGapHszIn*1e3,3))+" mm")
         print("Secondary Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHszInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHszInRatio,3)))
@@ -465,11 +467,13 @@ if numHsz>0.9:
 if numHdz>0.9:
     if fracDzOut>0:
         numHdzOutRow,RadHdzOut,AGapHdzOut,AGapHdzOutRatio,TGapHdzOutRatio = holePattCalc(numHdz,fracDzOut,nRowDzOut,LenDz,djDz,Dl=[Dlo],isFront=False)
+        AGapHdzOut += LenPz + LenSz #Add offset [m]
         print("Dilution Zone Outer Face Has "+str(int(numHdzOutRow))+" holes per row &&&& "+str(nRowDzOut)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
         print("Dilution Zone Outer Rows Axial Locations: "+str(np.round(AGapHdzOut*1e3,3))+" mm")
         print("Dilution Zone Outer Gap Ratio (Axial):"+str(np.round(AGapHdzOutRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHdzOutRatio,3)))
     if (1-fracDzOut)>0:
         numHdzInRow,RadHdzIn,AGapHdzIn,AGapHdzInRatio,TGapHdzInRatio = holePattCalc(numHdz,(1-fracDzOut),nRowDzIn,LenDz,djDz,Dl=[DliNew],isFront=False)
+        AGapHdzIn += LenPz + LenSz #Add offset [m]
         print("Dilution Zone Inner Face has "+str(int(numHdzInRow))+" holes per row &&&& "+str(nRowDzIn)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
         print("Dilution Zone Inner Rows Axial Locations: "+str(np.round(AGapHdzIn*1e3,3))+" mm")
         print("Dilution Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHdzInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHdzInRatio,3)))
