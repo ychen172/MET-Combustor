@@ -422,37 +422,56 @@ if EmbeddedVaporizer:
     print("####Correct for embedded fuel vaporizer####")
     print("===========================================")
     DliNew = np.sqrt(Dlo**2 - numPzFuelInj*(dpPzMixOut**2) - Aft*4/np.pi) #actual inner diameter of the liner[m]
-    print("Old Liner Inner Diameter: "+str(np.round(Dli*1e3,3))+" mm")
+    HlNew = 0.5*(Dlo-DliNew) #Liner height [m]
+    print("Corrected Liner Height: "+str(np.round(HlNew*1e3,3))+" mm")
     print("Corrected Liner Inner Diameter: "+str(np.round(DliNew*1e3,3))+" mm")
     print(" ")
+else:
+    DliNew = Dli
+    HlNew = Hl
 
 #Calculate the hole pattern
-print("\n\n\n#####\n#####\nCalculate Hole Pattern")
-numHpzFrontRow,RadHpzFront,AGapHpzFront,AGapHpzFrontRatio,TGapHpzFrontRatio = holePattCalc(numHpz,fracPzFront,nRowPzFront,Hl,djPz,Dl=[Dli,Dlo],isFront=True)
-numHpzOutRow,RadHpzOut,AGapHpzOut,AGapHpzOutRatio,TGapHpzOutRatio = holePattCalc(numHpz,fracPzOut,nRowPzOut,LenPz,djPz,Dl=[Dlo],isFront=False)
-numHpzInRow,RadHpzIn,AGapHpzIn,AGapHpzInRatio,TGapHpzInRatio = holePattCalc(numHpz,(1-fracPzOut-fracPzFront),nRowPzIn,LenPz,djPz,Dl=[Dli],isFront=False)
-print("Front pz "+str(numHpzFrontRow)+" holes times "+str(nRowPzFront)+" rows with diameter "+str(djPz)+" m")
-print("Out pz "+str(numHpzOutRow)+" holes times "+str(nRowPzOut)+" rows with diameter "+str(djPz)+" m")
-print("In pz "+str(numHpzInRow)+" holes times "+str(nRowPzIn)+" rows with diameter "+str(djPz)+" m")
-print("Radius Front pz:"+str(RadHpzFront)+" m")
-print("Axial gap Out pz: "+str(AGapHpzOut)+" m In pz: "+str(AGapHpzIn)+" m")
-print("Gap Ratio Front pz (A/T):"+str(AGapHpzFrontRatio)+" & "+str(TGapHpzFrontRatio))
-print("Gap Ratio Out pz (A/T):"+str(AGapHpzOutRatio)+" & "+str(TGapHpzOutRatio))
-print("Gap Ratio In pz (A/T):"+str(AGapHpzInRatio)+" & "+str(TGapHpzInRatio))
-print("\n")
-numHszOutRow,RadHszOut,AGapHszOut,AGapHszOutRatio,TGapHszOutRatio = holePattCalc(numHsz,fracSzOut,nRowSzOut,LenSz*fracHLenSz,djSz,Dl=[Dlo],isFront=False)
-numHszInRow,RadHszIn,AGapHszIn,AGapHszInRatio,TGapHszInRatio = holePattCalc(numHsz,(1-fracSzOut),nRowSzIn,LenSz*fracHLenSz,djSz,Dl=[Dli],isFront=False)
-print("Out sz "+str(numHszOutRow)+" holes times "+str(nRowSzOut)+" rows with diameter "+str(djSz)+" m")
-print("In sz "+str(numHszInRow)+" holes times "+str(nRowSzIn)+" rows with diameter "+str(djSz)+" m")
-print("Axial gap Out sz: "+str(AGapHszOut)+" m In sz: "+str(AGapHszIn)+" m")
-print("Gap Ratio Out sz (A/T):"+str(AGapHszOutRatio)+" & "+str(TGapHszOutRatio))
-print("Gap Ratio In sz (A/T):"+str(AGapHszInRatio)+" & "+str(TGapHszInRatio)) #-0.5axial ratio will be the target if only one row
-print("\n")
-numHdzOutRow,RadHdzOut,AGapHdzOut,AGapHdzOutRatio,TGapHdzOutRatio = holePattCalc(numHdz,fracDzOut,nRowDzOut,LenDz,djDz,Dl=[Dlo],isFront=False)
-numHdzInRow,RadHdzIn,AGapHdzIn,AGapHdzInRatio,TGapHdzInRatio = holePattCalc(numHdz,(1-fracDzOut),nRowDzIn,LenDz,djDz,Dl=[Dli],isFront=False)
-print("Out dz "+str(numHdzOutRow)+" holes times "+str(nRowDzOut)+" rows with diameter "+str(djDz)+" m")
-print("In dz "+str(numHdzInRow)+" holes times "+str(nRowDzIn)+" rows with diameter "+str(djDz)+" m")
-print("Axial gap Out dz: "+str(AGapHdzOut)+" m In dz: "+str(AGapHdzIn)+" m")
-print("Gap Ratio Out dz (A/T):"+str(AGapHdzOutRatio)+" & "+str(TGapHdzOutRatio))
-print("Gap Ratio In dz (A/T):"+str(AGapHdzInRatio)+" & "+str(TGapHdzInRatio))
+print("####Compute Hole Pattern####")
+print("============================")
+if numHjpz>0.9:
+    if fracPzFront>0:
+        numHpzFrontRow,RadHpzFront,AGapHpzFront,AGapHpzFrontRatio,TGapHpzFrontRatio = holePattCalc(numHjpz,fracPzFront,nRowPzFront,HlNew,djPz,Dl=[DliNew,Dlo],isFront=True)
+        print("Primary Zone Front Face Has "+str(int(numHpzFrontRow))+" holes per row &&&& "+str(nRowPzFront)+" rows with diameter "+str(np.round(djPz*1e3,3))+" mm")
+        print("Primary Zone Front Rows Radii:"+str(np.round(RadHpzFront*1e3,3))+" mm")
+        print("Primary Zone Front Gap Ratio (Radial):"+str(np.round(AGapHpzFrontRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHpzFrontRatio,3)))
+    if fracPzOut>0:
+        numHpzOutRow,RadHpzOut,AGapHpzOut,AGapHpzOutRatio,TGapHpzOutRatio = holePattCalc(numHjpz,fracPzOut,nRowPzOut,LenPz,djPz,Dl=[Dlo],isFront=False)
+        print("Primary Zone Outer Face Has "+str(int(numHpzOutRow))+" holes per row &&&& "+str(nRowPzOut)+" rows with diameter "+str(np.round(djPz*1e3,3))+" mm")
+        print("Primary Zone Outer Rows Axial Locations: "+str(np.round(AGapHpzOut*1e3,3))+" mm")
+        print("Primary Zone Outer Gap Ratio (Axial):"+str(np.round(AGapHpzOutRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHpzOutRatio,3)))
+    if (1-fracPzOut-fracPzFront)>0:
+        numHpzInRow,RadHpzIn,AGapHpzIn,AGapHpzInRatio,TGapHpzInRatio = holePattCalc(numHjpz,(1-fracPzOut-fracPzFront),nRowPzIn,LenPz,djPz,Dl=[DliNew],isFront=False)
+        print("Primary Zone Inner Face has "+str(int(numHpzInRow))+" holes per row &&&& "+str(nRowPzIn)+" rows with diameter "+str(np.round(djPz*1e3,3))+" mm")
+        print("Primary Zone Inner Rows Axial Locations: "+str(np.round(AGapHpzIn*1e3,3))+" mm")
+        print("Primary Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHpzInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHpzInRatio,3)))
+    print("\n")
+if numHsz>0.9:
+    if fracSzOut>0:        
+        numHszOutRow,RadHszOut,AGapHszOut,AGapHszOutRatio,TGapHszOutRatio = holePattCalc(numHsz,fracSzOut,nRowSzOut,LenSz*fracHLenSz,djSz,Dl=[Dlo],isFront=False)
+        print("Secondary Zone Outer Face Has "+str(int(numHszOutRow))+" holes per row &&&& "+str(nRowSzOut)+" rows with diameter "+str(np.round(djSz*1e3,3))+" mm")
+        print("Secondary Zone Outer Rows Axial Locations: "+str(np.round(AGapHszOut*1e3,3))+" mm")
+        print("Secondary Zone Outer Gap Ratio (Axial):"+str(np.round(AGapHszOutRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHszOutRatio,3)))
+    if (1-fracSzOut)>0:
+        numHszInRow,RadHszIn,AGapHszIn,AGapHszInRatio,TGapHszInRatio = holePattCalc(numHsz,(1-fracSzOut),nRowSzIn,LenSz*fracHLenSz,djSz,Dl=[DliNew],isFront=False)
+        print("Secondary Zone Inner Face has "+str(int(numHszInRow))+" holes per row &&&& "+str(nRowSzIn)+" rows with diameter "+str(np.round(djSz*1e3,3))+" mm")
+        print("Secondary Zone Inner Rows Axial Locations: "+str(np.round(AGapHszIn*1e3,3))+" mm")
+        print("Secondary Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHszInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHszInRatio,3)))
+    print("\n")
+if numHdz>0.9:
+    if fracDzOut>0:
+        numHdzOutRow,RadHdzOut,AGapHdzOut,AGapHdzOutRatio,TGapHdzOutRatio = holePattCalc(numHdz,fracDzOut,nRowDzOut,LenDz,djDz,Dl=[Dlo],isFront=False)
+        print("Dilution Zone Outer Face Has "+str(int(numHdzOutRow))+" holes per row &&&& "+str(nRowDzOut)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
+        print("Dilution Zone Outer Rows Axial Locations: "+str(np.round(AGapHdzOut*1e3,3))+" mm")
+        print("Dilution Zone Outer Gap Ratio (Axial):"+str(np.round(AGapHdzOutRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHdzOutRatio,3)))
+    if (1-fracDzOut)>0:
+        numHdzInRow,RadHdzIn,AGapHdzIn,AGapHdzInRatio,TGapHdzInRatio = holePattCalc(numHdz,(1-fracDzOut),nRowDzIn,LenDz,djDz,Dl=[DliNew],isFront=False)
+        print("Dilution Zone Inner Face has "+str(int(numHdzInRow))+" holes per row &&&& "+str(nRowDzIn)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
+        print("Dilution Zone Inner Rows Axial Locations: "+str(np.round(AGapHdzIn*1e3,3))+" mm")
+        print("Dilution Zone Inner Gap Ratio (Axial):"+str(np.round(AGapHdzInRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHdzInRatio,3)))
+    print("\n")
 print('end')
