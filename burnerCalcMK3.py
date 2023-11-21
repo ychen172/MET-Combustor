@@ -64,39 +64,39 @@ def holePattCalc(numHTot,fracH,nRow,charaLen,dj,Dl=[9e9,10e9],isFront=False):
 # Design switch
 EmbeddedVaporizer = False #If fuel vaporizer is embedded within liner, then inner liner diameter will be corrected
 # Combustor inlet gas property
-mdot3 = 0.268   #Inlet mass flow [kg/s]
-Tt3   = 346.758 #Total temperature [K]
-Pt3   = 1.70e5  #Total pressure [Pa]
-R3    = 288.512 #Gas constant [J/(kg*K)]
-gam3  = 1.397   #Gamma
+mdot3 = 0.2729436   #Inlet mass flow [kg/s]
+Tt3   = 352.7267 #Total temperature [K]
+Pt3   = 169668.5  #Total pressure [Pa]
+R3    = 287.0 #Gas constant [J/(kg*K)]
+gam3  = 1.3982   #Gamma
 # Combustor outlet gas property
-mdot4 = 0.2708   #Outlet mass flow [kg/s] 
-Tt4   = 802.588 #Total temperature [K]
-Pt4   = 1.63e5  #Total pressure [Pa]
-R4    = 288.469 #Gas constant [J/(kg*K)]
-gam4  = 1.344   #Gamma
+mdot4 = 0.2760553   #Outlet mass flow [kg/s] 
+Tt4   = 864.4492 #Total temperature [K]
+Pt4   = 162881.7  #Total pressure [Pa]
+R4    = 287.0 #Gas constant [J/(kg*K)]
+gam4  = 1.339338   #Gamma
 # Combustor geometry
-Dco   = 0.145   #Outer casing diameter [m]
-Dci   = 0.070   #Inner casing diameter [m]
-Dinleto = 0.14 #Outer inlet diameter [m]
-Dinleti = 0.1288 #Inner inlet diameter [m]
-Ma4   = 0.1     #Exit Mach number
+Dco   = 0.140   #Outer casing diameter [m]
+Dci   = 0.050   #Inner casing diameter [m]
+Dinleto = 0.140 #Outer inlet diameter [m]
+Dinleti = 0.130 #Inner inlet diameter [m]
+Ma4   = 0.106     #Exit Mach number
 YFuel = {'C3H8':1}
 YOxid = {'O2':0.230,'N2':0.769,'H2O':(1-0.230-0.769)} #Oxidizer must contain only O2 N2 and H2O
-phiPz = 1.8 #Primary zone
+phiPz = 2.45 #Primary zone
 phiSz = 0.6 #Secondary zone
 fracLossPz = 0.40 #Primary zone
 fracLossSz = 0.40 #Secondary zone
-TauTot = 4e-3 #Total residence time [s]
-LszLpzR = 2.2 #length of secondary zone over primary zone 
-PHRjpz = 0.112 #Fraction of the liner height for penetration
-PHRsz = 0.5 #Fraction of the liner height for penetration
-PHRdz = 0.10 #Fraction of the liner height for penetration
-velRatJetFuel = 7.4 #Ufuel/UJetAirPz
-fracPzFuelPipe = 0.194 #Frac of primary zone air use for vaporization
-numPzFuelInj = 10 #Number of primary zone fuel injectors
+TauTot = 3.88e-3 #Total residence time [s]
+LszLpzR = 1.64 #length of secondary zone over primary zone 
+PHRjpz = 0.1 #Fraction of the liner height for penetration
+PHRsz = 0.445 #Fraction of the liner height for penetration
+PHRdz = 0.1614 #Fraction of the liner height for penetration
+velRatJetFuel = 7.1 #Ufuel/UJetAirPz
+fracPzFuelPipe = 1 #Frac of primary zone air use for vaporization
+numPzFuelInj = 20 #Number of primary zone fuel injectors
 thiPipeFuel = 0.508/1000 #[m] Thickness of copper and stainless steel pipeline
-thiPipeAir = 0.508/1000 #[m] Thickness of copper and stainless steel pipeline
+thiPipeAir = 0.1778/1000 #[m] Thickness of copper and stainless steel pipeline
 # Reference parameters
 Patm  = 101325  #Reference atmosphere pressure [Pa]
 Tfuel = 298 #Temperature of fuel before injection K
@@ -106,13 +106,13 @@ fracPzOut = 0.40
 nRowPzFront = 4
 nRowPzOut = 3
 nRowPzIn = 2
-fracSzOut = 1.0
-nRowSzOut = 3
-nRowSzIn = 3
+fracSzOut = 0.6
+nRowSzOut = 1
+nRowSzIn = 1
 fracHLenSz = 1.0 #fraction of frontal length over which holes are punched (Only for quenchin holes)
 fracDzOut = 0.6
-nRowDzOut = 14
-nRowDzIn = 14
+nRowDzOut = 3
+nRowDzIn = 3
 ### User Input End
 print("Combustor Design Python Code: \n\n\n\n\n\n")
 #Print out operating conditions
