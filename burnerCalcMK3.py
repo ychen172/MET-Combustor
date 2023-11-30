@@ -91,7 +91,7 @@ TauTot = 3.88e-3 #Total residence time [s]
 LszLpzR = 1.64 #length of secondary zone over primary zone 
 PHRjpz = 0.1 #Fraction of the liner height for penetration
 PHRsz = 0.445 #Fraction of the liner height for penetration
-PHRdz = 0.1614 #Fraction of the liner height for penetration
+PHRdz = 0.102 #Fraction of the liner height for penetration
 velRatJetFuel = 7.1 #Ufuel/UJetAirPz
 fracPzFuelPipe = 1 #Frac of primary zone air use for vaporization
 numPzFuelInj = 20 #Number of primary zone fuel injectors
@@ -110,6 +110,7 @@ fracSzOut = 0.6
 nRowSzOut = 1
 nRowSzIn = 1
 fracHLenSz = 1.0 #fraction of frontal length over which holes are punched (Only for quenchin holes)
+fracHLenDz = 0.63 #fraction of frontal length over which holes are punched (Only for quenchin holes)
 fracDzOut = 0.6
 nRowDzOut = 3
 nRowDzIn = 3
@@ -468,13 +469,13 @@ if numHsz>0.9:
     print(" ")
 if numHdz>0.9:
     if fracDzOut>0:
-        numHdzOutRow,RadHdzOut,AGapHdzOut,AGapHdzOutRatio,TGapHdzOutRatio = holePattCalc(numHdz,fracDzOut,nRowDzOut,LenDz,djDz,Dl=[Dlo],isFront=False)
+        numHdzOutRow,RadHdzOut,AGapHdzOut,AGapHdzOutRatio,TGapHdzOutRatio = holePattCalc(numHdz,fracDzOut,nRowDzOut,LenDz*fracHLenDz,djDz,Dl=[Dlo],isFront=False)
         AGapHdzOut += AGapHszOut[-1]+0.5*djSz #Add offset [m]
         print("Dilution Zone Outer Face Has "+str(int(numHdzOutRow))+" holes per row &&&& "+str(nRowDzOut)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
         print("Dilution Zone Outer Rows Axial Locations: "+str(np.round(AGapHdzOut*1e3,3))+" mm")
         print("Dilution Zone Outer Gap Ratio (Axial):"+str(np.round(AGapHdzOutRatio,3))+" &&&& (Tangential):"+str(np.round(TGapHdzOutRatio,3)))
     if (1-fracDzOut)>0:
-        numHdzInRow,RadHdzIn,AGapHdzIn,AGapHdzInRatio,TGapHdzInRatio = holePattCalc(numHdz,(1-fracDzOut),nRowDzIn,LenDz,djDz,Dl=[DliNew],isFront=False)
+        numHdzInRow,RadHdzIn,AGapHdzIn,AGapHdzInRatio,TGapHdzInRatio = holePattCalc(numHdz,(1-fracDzOut),nRowDzIn,LenDz*fracHLenDz,djDz,Dl=[DliNew],isFront=False)
         AGapHdzIn += AGapHszIn[-1]+0.5*djSz #Add offset [m]
         print("Dilution Zone Inner Face has "+str(int(numHdzInRow))+" holes per row &&&& "+str(nRowDzIn)+" rows with diameter "+str(np.round(djDz*1e3,3))+" mm")
         print("Dilution Zone Inner Rows Axial Locations: "+str(np.round(AGapHdzIn*1e3,3))+" mm")
