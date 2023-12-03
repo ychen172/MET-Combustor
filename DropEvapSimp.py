@@ -100,6 +100,8 @@ extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FA
 Result = fsolve(Objective,InitGuess,args = extArgs)
 print(Result)
 #Droplet Lifetime Integrator
+fracMassEvap = 0.1 #Until 10% of total mass
+fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
 time = np.linspace(0,5.01e-4,10000)
 rdLst = np.ones(len(time))*rd
 for i in range(1,len(time)):
@@ -109,4 +111,9 @@ for i in range(1,len(time)):
     InitGuess = Result
     mdotFCur = Result[0]
     rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
+    if rdLst[i] < rd*fracrdEvap:
+        rdLst = rdLst[:(i+1)]
+        time = time[:(i+1)]
+        break
+print(time)
 print(rdLst)
