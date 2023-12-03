@@ -59,12 +59,12 @@ def Objective(vars,extArgs):
 YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
 YFue = "C2H5OH:1"
 gas = ct.Solution('CRECK2019-NOx-NoBin.yaml')
-Pref = 101325*15 #Pa
-Tinf = 800 #K
+Pref = 485501 #Pa
+Tinf = 487.233 #K
 Tdrop = 298 #K Droplet Temperature
 YOxiInf = 1.0 #Farfield Composition
-rd = 25e-6 #m radius of droplet
-DelTM = 3 #Unity Lewis Number Nu = Sh and so DelT = DelM
+rd = 10e-6 #m radius of droplet
+DelTM = 2.1 #Unity Lewis Number Nu = Sh and so DelT = DelM
 rhol = 789 #kg/m3
 cpl = 2570 #J/kg/K
 LHVapor = 918187.9354880721 #J/kg
@@ -83,6 +83,7 @@ gas.equilibrate('HP')
 MWPro = gas.mean_molecular_weight/1000
 Tadi = gas.T
 #Solve
-InitGuess = [1e-10,rd*1.04,Tadi,298,0.9]
+InitGuess = [1e-9,rd*1.1,Tadi,Tdrop,0.5]
 extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
-Result = fsolve(Objective,InitGuess,args = extArgs)[0] 
+Result = fsolve(Objective,InitGuess,args = extArgs)
+print(Result)
