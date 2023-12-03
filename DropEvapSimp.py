@@ -2,33 +2,33 @@ import numpy as np
 import cantera as ct
 from scipy.optimize import fsolve
 def Objective(vars,extArgs):
-    YOxi    = extArgs[0]
-    YFue    = extArgs[1]
+    YOxi    = extArgs[0] #Composition of Oxidizer
+    YFue    = extArgs[1] #Composition of Fuel
     gas     = extArgs[2]
-    Pref    = extArgs[3]
-    Tinf    = extArgs[4]
-    Tdrop   = extArgs[5]
-    YOxiInf = extArgs[6]
-    rd      = extArgs[7]
-    DelTM   = extArgs[8]
-    cpl     = extArgs[9] 
-    LHVapor = extArgs[10]
-    LHVheat = extArgs[11]
-    FAst    = extArgs[12]
-    TsatRef = extArgs[13]
-    PsatRef = extArgs[14]
-    MWFue   = extArgs[15]
-    RFue    = extArgs[16]
-    MWPro   = extArgs[17]
+    Pref    = extArgs[3] #Constant Pressure
+    Tinf    = extArgs[4] #Temperature Farfield
+    Tdrop   = extArgs[5] #Droplet Inner Temperature
+    YOxiInf = extArgs[6] #Mass Fraction of Oxidizer in FarField
+    rd      = extArgs[7] #Droplet Radius
+    DelTM   = extArgs[8] #FarField Radius
+    cpl     = extArgs[9] #Liquid specific heat
+    LHVapor = extArgs[10] #Latent heat of vaporization
+    LHVheat = extArgs[11] #Lower heating value
+    FAst    = extArgs[12] #Stoichiometric Fuel Air Ratio
+    TsatRef = extArgs[13] #Reference saturation temperature
+    PsatRef = extArgs[14] #Reference saturation pressure
+    MWFue   = extArgs[15] #Fuel Molecular Weight
+    RFue    = extArgs[16] #Fuel Gas Constant
+    MWPro   = extArgs[17] #Product Molecular Weight
 
-    mdotF = vars[0]
-    rf    = vars[1]
-    Tf    = vars[2]
-    Ts    = vars[3]
-    YFs   = vars[4]
+    mdotF = vars[0] #Mass Flow Rate of Fuel
+    rf    = vars[1] #Radius of Flame Sheet
+    Tf    = vars[2] #Flamelet Temperature
+    Ts    = vars[3] #Droplet Surface Temperature
+    YFs   = vars[4] #Droplet Surface MassFraction
 
     #Average Property
-    Tave = 0.5*(Ts+Tf) #Law and Williams
+    Tave = np.max([0.5*(Ts+Tf),Tdrop]) #Law and Williams (Prevent extreme low temperature)
     gas.TPY = Tave,Pref,YFue
     cpg  = gas.cp_mass #Law and Williams
     kF = gas.thermal_conductivity
