@@ -64,7 +64,7 @@ Pref = 485501 #Pa
 Tinf = 487.233 #K
 Tdrop = 298 #K Droplet Temperature
 YOxiInf = 1.0 #Farfield Composition
-rd = 10e-6 #m radius of droplet
+rd = 50e-6 #m radius of droplet
 rhol = 789 #kg/m3
 cpl = 2570 #J/kg/K
 LHVapor = 918187.9354880721 #J/kg
@@ -94,10 +94,16 @@ Re = (gas.density_mass*velRel*(2*rd))/gas.viscosity #Relative Reynold Number
 Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
 NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
 DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
-#Solve
-InitGuess = [1e-9,rd*1.1,Tadi,Tdrop,0.5]
+#Initialization
+rdBase = 10e-6 #m radius of droplet
+InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
 extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
-Result = fsolve(Objective,InitGuess,args = extArgs)
+while abs(rdBase-rd)/rdBase >0.0001:
+    extArgs[7] = rdBase
+    Result = fsolve(Objective,InitGuess,args = extArgs)
+    rdBase = (rd-rdBase)/100 + rdBase
+    InitGuess = Result
+    print(abs(rdBase-rd)/rdBase)
 print(Result)
 #Droplet Lifetime Integrator
 fracMassEvap = 0.1 #Until 10% of total mass
