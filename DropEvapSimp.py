@@ -64,7 +64,6 @@ Tinf = 487.233 #K
 Tdrop = 298 #K Droplet Temperature
 YOxiInf = 1.0 #Farfield Composition
 rd = 10e-6 #m radius of droplet
-DelTM = 2.1 #Unity Lewis Number Nu = Sh and so DelT = DelM
 rhol = 789 #kg/m3
 cpl = 2570 #J/kg/K
 LHVapor = 918187.9354880721 #J/kg
@@ -82,6 +81,18 @@ gas.TP = 298,101325
 gas.equilibrate('HP')
 MWPro = gas.mean_molecular_weight/1000
 Tadi = gas.T
+#Compute Forced Convection Term
+MachLiner = 0.35
+Gamma = 1.4
+Tstatic = Tinf/(1 + 0.5*(Gamma-1)*(MachLiner**2))
+gas.TPY = Tinf,Pref,YOxi
+MWOxi = gas.mean_molecular_weight/1000 #kg/mole
+ROxi = Ru/MWOxi #Gas constant of fuel J/kg/K
+velRel = np.sqrt(Gamma*ROxi*Tstatic)*MachLiner #Approximated Relative Velocity
+Re = (gas.density_mass*velRel*(2*rd))/gas.viscosity #Relative Reynold Number
+Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
+NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
+DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
 #Solve
 InitGuess = [1e-9,rd*1.1,Tadi,Tdrop,0.5]
 extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
