@@ -1,6 +1,7 @@
 import numpy as np
 import cantera as ct
 from scipy.optimize import fsolve
+from scipy.integrate import odeint
 def Objective(vars,extArgs):
     YOxi    = extArgs[0] #Composition of Oxidizer
     YFue    = extArgs[1] #Composition of Fuel
@@ -98,3 +99,13 @@ InitGuess = [1e-9,rd*1.1,Tadi,Tdrop,0.5]
 extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
 Result = fsolve(Objective,InitGuess,args = extArgs)
 print(Result)
+#Droplet Lifetime Integrator
+def drdt(rdCur,t):
+    rdCur = rdCur[0]
+    InitGuess[1] = rdCur*1.1
+    extArgs[7] = rdCur
+    Result = fsolve(Objective,InitGuess,args = extArgs)
+    mdotFCur = Result[0]
+    return (-mdotFCur)/(4*np.pi*rhol*(rdCur**2))
+time = np.linspace(0,1e-4,10)
+rdLst = odeint(drdt, rd, time)
