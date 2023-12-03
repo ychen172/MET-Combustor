@@ -64,7 +64,7 @@ Pref = 485501 #Pa
 Tinf = 487.233 #K
 Tdrop = 298 #K Droplet Temperature
 YOxiInf = 1.0 #Farfield Composition
-rd = 50e-6 #m radius of droplet
+rd = 10e-6 #m radius of droplet
 rhol = 789 #kg/m3
 cpl = 2570 #J/kg/K
 LHVapor = 918187.9354880721 #J/kg
@@ -104,7 +104,6 @@ while abs(rdBase-rd)/rdBase >0.0001:
     rdBase = (rd-rdBase)/100 + rdBase
     InitGuess = Result
     print(abs(rdBase-rd)/rdBase)
-print(Result)
 #Droplet Lifetime Integrator
 fracMassEvap = 0.1 #Until 10% of total mass
 fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
