@@ -100,12 +100,13 @@ extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FA
 Result = fsolve(Objective,InitGuess,args = extArgs)
 print(Result)
 #Droplet Lifetime Integrator
-def drdt(rdCur,t):
-    rdCur = rdCur[0]
-    InitGuess[1] = rdCur*1.1
+time = np.linspace(0,5.01e-4,10000)
+rdLst = np.ones(len(time))*rd
+for i in range(1,len(time)):
+    rdCur = rdLst[i-1]
     extArgs[7] = rdCur
     Result = fsolve(Objective,InitGuess,args = extArgs)
+    InitGuess = Result
     mdotFCur = Result[0]
-    return (-mdotFCur)/(4*np.pi*rhol*(rdCur**2))
-time = np.linspace(0,1e-4,10)
-rdLst = odeint(drdt, rd, time)
+    rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
+print(rdLst)
