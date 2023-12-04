@@ -8,13 +8,13 @@ YFue = "C2H5OH:1"
 ReacMech = 'CRECK2019-NOx-NoBin.yaml'
 Tdrop = 298 #K Droplet Temperature
 YOxiInf = 1.0 #Farfield Composition
-rhol = 789 #kg/m3
-cpl = 2570 #J/kg/K
-LHVapor = 918187.9354880721 #J/kg
-LHVheat = 27728322.542190198 #J/kg
-FAst = 0.11107613244759687 #Stoichiometric Fuel Air Ratio
-TsatRef = 298 #K Fuel saturation temperature
-PsatRef = 0.008e6 #Pa 0.008 MPa 
+rhol = 789 #kg/m3 nDodecane: 749 kg/m3
+cpl = 2570 #J/kg/K nDodecane: 2211.764 J/kg/K
+LHVapor = 918187.9354880721 #J/kg nDodecane: 256000 #J/kg
+LHVheat = 27728322.542190198 #J/kg nDodecane: 44462059.86766551   
+FAst = 0.11107613244759687 #Stoichiometric Fuel Air Ratio nDodecane: 0.06660059875330497
+TsatRef = 298 #K Fuel saturation temperature nDodecane: 450K
+PsatRef = 0.008e6 #Pa nDodecane: 35750 Pa
 MachLiner = 0.35
 Gamma = 1.4
 fracMassEvap = 0.1
@@ -81,7 +81,7 @@ ax  = fig.add_subplot(1,1,1)
 for i in range(len(rdIniList)):
     plt.plot(TinfLst, np.array(DropLifeTime[i])*1e3,label="rd: "+str(rdIniList[i]*1e6)+" um")
 plt.ylabel('Droplet Lifetime [ms]')
-plt.xlabel('Ambient Temperature [K]')
+plt.xlabel('Combustor Inlet Temperature [K]')
 plt.legend()
 plt.title('Relative Mach Number '+str(MachLiner))
 plt.grid(True)
