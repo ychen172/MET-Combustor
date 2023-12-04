@@ -13,7 +13,7 @@ def DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rd):
     Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
     NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
     DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
-    return DelTM
+    return DelTM, NuSh, Re, Pr, velRel
 
 def Objective(vars,extArgs):
     YOxi    = extArgs[0] #Composition of Oxidizer
@@ -100,12 +100,12 @@ MachLiner = 0.35
 Gamma = 1.4
 #Initialization
 rdBase = 10e-6 #m radius of droplet
-DelTM = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
+DelTM, dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
 InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
 extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
 while abs(rdBase-rd)/rdBase >0.0001:
     extArgs[7] = rdBase
-    extArgs[8] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
+    extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
     Result = fsolve(Objective,InitGuess,args = extArgs)
     rdBase = (rd-rdBase)/100 + rdBase
     InitGuess = Result
@@ -115,10 +115,16 @@ fracMassEvap = 0.1 #Until 10% of total mass
 fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
 time = np.linspace(0,1e-2,10000)
 rdLst = np.ones(len(time))*rd
+DelTMLst = np.ones(len(time))
+NuLst = np.ones(len(time))
+ReLst = np.ones(len(time))
+PrLst = np.ones(len(time))
+velRel = np.ones(len(time))
 for i in range(1,len(time)):
     rdCur = rdLst[i-1]
     extArgs[7] = rdCur
-    extArgs[8] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
+    DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRel[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
+    extArgs[8] = DelTMLst[i-1]
     Result = fsolve(Objective,InitGuess,args = extArgs)
     InitGuess = Result
     mdotFCur = Result[0]
@@ -126,6 +132,11 @@ for i in range(1,len(time)):
     if rdLst[i] < rd*fracrdEvap:
         rdLst = rdLst[:(i+1)]
         time = time[:(i+1)]
+        DelTMLst = DelTMLst[:(i+1)]
+        NuLst = NuLst[:(i+1)]
+        ReLst = ReLst[:(i+1)]
+        PrLst = PrLst[:(i+1)]
+        velRel = velRel[:(i+1)]
         break
 print(time)
 print(rdLst)
