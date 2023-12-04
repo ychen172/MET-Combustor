@@ -26,7 +26,7 @@ PCycleLst = Cycle['Pt3[Pa]'].values[:]
 PrefLst = PCycleLst[-1:] #485501 #Pa
 TinfLst = TCycleLst[-1:] #487.233 #K
 #Test Conditions
-rdIniList = [50e-6,25e-6,5e-6] #m radius of droplet
+rdIniList = [30e-6,25e-6,20e-6,15e-6,10e-6,5e-6] #m radius of droplet
 #Solve
 Result = []
 for i in range(len(rdIniList)):
@@ -74,7 +74,7 @@ plt.savefig("TFlame.jpg")
 fig = plt.figure(dpi = 300)
 ax  = fig.add_subplot(1,1,1)
 for i in range(len(rdIniList)):
-    plt.plot(rdIniList[i]*1e6, Result[i][0][1][-1]*1e3, 'k+')
+    plt.plot(rdIniList[i]*1e6, Result[i][0][1][-1]*1e3, 'k.')
 plt.ylabel('Droplet Lifetime [ms]')
 plt.xlabel('Droplet Radius [um]')
 plt.title('Relative Mach Number '+str(MachLiner)+' Tinf: '+str(np.round(TinfLst[0],3))+' K Pinf: '+str(np.round(PrefLst[0],3))+' Pa')
