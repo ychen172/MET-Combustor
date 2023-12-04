@@ -1,4 +1,6 @@
 from DropEvapFun import EvapCalc
+import matplotlib.pyplot as plt
+#Parameters
 YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
 YFue = "C2H5OH:1"
 ReacMech = 'CRECK2019-NOx-NoBin.yaml'
@@ -6,7 +8,6 @@ Pref = 485501 #Pa
 Tinf = 487.233 #K
 Tdrop = 298 #K Droplet Temperature
 YOxiInf = 1.0 #Farfield Composition
-rd = 50e-6 #m radius of droplet
 rhol = 789 #kg/m3
 cpl = 2570 #J/kg/K
 LHVapor = 918187.9354880721 #J/kg
@@ -17,4 +18,33 @@ PsatRef = 0.008e6 #Pa 0.008 MPa
 MachLiner = 0.35
 Gamma = 1.4
 fracMassEvap = 0.1
-Result = EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MachLiner,Gamma,fracMassEvap)
+#Test Conditions
+rdIniList = [50e-6,30e-6,10e-6] #m radius of droplet
+#Solve
+Result = []
+for i in range(len(rdIniList)):
+    Result.append(EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rdIniList[i],rhol,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MachLiner,Gamma,fracMassEvap))
+"""
+rdLst = Result[0]
+time = Result[1]
+DelTMLst = Result[2]
+NuLst = Result[3]
+ReLst = Result[4]
+PrLst = Result[5]
+velRelLst = Result[6]
+mdotFLst = Result[7]
+rFLst = Result[8]
+TFLst = Result[9]
+TSLst = Result[10]
+YSLst = Result[11]
+"""
+#Plot Radius Evolution
+fig = plt.figure(dpi = 300)
+ax  = fig.add_subplot(1,1,1)
+for i in range(len(rdIniList)):
+    plt.plot(Result[i][1]*1e3, (Result[i][0]*1e6)**2)
+plt.ylabel('rd^2 [um2]')
+plt.xlabel('Time [ms]')
+plt.title('Relative Mach Number '+str(MachLiner))
+plt.grid(True)
+plt.savefig("rdSquare.jpg")
