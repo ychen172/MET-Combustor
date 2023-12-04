@@ -3,7 +3,7 @@ import cantera as ct
 from scipy.optimize import fsolve
 from scipy.integrate import odeint
 #Compute Forced Convection Term
-def DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rd):
+def DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rd,gas):
     Tstatic = Tinf/(1 + 0.5*(Gamma-1)*(MachLiner**2))
     gas.TPY = Tinf,Pref,YOxi
     MWOxi = gas.mean_molecular_weight/1000 #kg/mole
@@ -83,12 +83,12 @@ def EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVh
     Tadi = gas.T
     #Initialization
     rdBase = 10e-6 #m radius of droplet
-    DelTM, dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
+    DelTM, dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase,gas)
     InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
     extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
     while abs(rdBase-rd)/rdBase >0.0001:
         extArgs[7] = rdBase
-        extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
+        extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase,gas)
         Result = fsolve(Objective,InitGuess,args = extArgs)
         rdBase = (rd-rdBase)/100 + rdBase
         InitGuess = Result
@@ -109,7 +109,7 @@ def EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVh
     for i in range(1,len(time)):
         rdCur = rdLst[i-1]
         extArgs[7] = rdCur
-        DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRelLst[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
+        DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRelLst[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur,gas)
         extArgs[8] = DelTMLst[i-1]
         Result = fsolve(Objective,InitGuess,args = extArgs)
         InitGuess = Result
