@@ -120,6 +120,11 @@ NuLst = np.ones(len(time))
 ReLst = np.ones(len(time))
 PrLst = np.ones(len(time))
 velRelLst = np.ones(len(time))
+mdotFLst = np.ones(len(time))
+rFLst = np.ones(len(time))
+TFLst = np.ones(len(time))
+TSLst = np.ones(len(time))
+YSLst = np.ones(len(time))
 for i in range(1,len(time)):
     rdCur = rdLst[i-1]
     extArgs[7] = rdCur
@@ -128,6 +133,13 @@ for i in range(1,len(time)):
     Result = fsolve(Objective,InitGuess,args = extArgs)
     InitGuess = Result
     mdotFCur = Result[0]
+    #Save History of Vaporization
+    mdotFLst[i-1] = Result[0]
+    rFLst[i-1] = Result[1]
+    TFLst[i-1] = Result[2]
+    TSLst[i-1] = Result[3]
+    YSLst[i-1] = Result[4]
+    #Save History of Vaporization
     rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
     if rdLst[i] < rd*fracrdEvap:
         rdLst = rdLst[:(i+1)]
@@ -137,6 +149,11 @@ for i in range(1,len(time)):
         ReLst = ReLst[:(i+1)]
         PrLst = PrLst[:(i+1)]
         velRelLst = velRelLst[:(i+1)]
+        mdotFLst = mdotFLst[:(i+1)]
+        rFLst = rFLst[:(i+1)]
+        TFLst = TFLst[:(i+1)]
+        TSLst = TSLst[:(i+1)]
+        YSLst = YSLst[:(i+1)]
         break
 print(time)
 print(rdLst)
