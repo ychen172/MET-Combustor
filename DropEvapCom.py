@@ -26,7 +26,7 @@ PCycleLst = Cycle['Pt3[Pa]'].values[:]
 PrefLst = PCycleLst[-1:] #485501 #Pa
 TinfLst = TCycleLst[-1:] #487.233 #K
 #Test Conditions
-rdIniList = [30e-6,25e-6,20e-6,15e-6,10e-6] #m radius of droplet
+rdIniList = [30e-6,25e-6,20e-6,15e-6,10e-6,5e-6] #m radius of droplet
 #Solve
 Result = []
 for i in range(len(rdIniList)):

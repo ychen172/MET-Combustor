@@ -100,7 +100,7 @@ def EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVh
         InitGuess = Result
     #Droplet Lifetime Integrator
     fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
-    time = np.linspace(0,1e-2,10000)
+    time = np.linspace(0,1e-2,100000)
     rdLst = np.ones(len(time))*rd
     DelTMLst = np.ones(len(time))
     NuLst = np.ones(len(time))
