@@ -1,7 +1,7 @@
 import numpy as np
 import cantera as ct
 from scipy.optimize import fsolve
-from scipy.integrate import odeint
+
 def Objective(vars,extArgs):
     YOxi    = extArgs[0] #Composition of Oxidizer
     YFue    = extArgs[1] #Composition of Fuel
@@ -56,69 +56,52 @@ def Objective(vars,extArgs):
     ResSaturation = (A*np.exp(-B/Ts)*MWFue)/(A*np.exp(-B/Ts)*MWFue + (Pref-A*np.exp(-B/Ts))*MWPro)  -  YFs
     return [ResInnerMass,ResOuterMass,ResInnerEnergy,ResOuterEnergy,ResSaturation]
 
-#DesignParameters
-YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
-YFue = "C2H5OH:1"
-gas = ct.Solution('CRECK2019-NOx-NoBin.yaml')
-Pref = 485501 #Pa
-Tinf = 487.233 #K
-Tdrop = 298 #K Droplet Temperature
-YOxiInf = 1.0 #Farfield Composition
-rd = 50e-6 #m radius of droplet
-rhol = 789 #kg/m3
-cpl = 2570 #J/kg/K
-LHVapor = 918187.9354880721 #J/kg
-LHVheat = 27728322.542190198 #J/kg
-FAst = 0.11107613244759687 #Stoichiometric Fuel Air Ratio
-TsatRef = 298 #K Fuel saturation temperature
-PsatRef = 0.008e6 #Pa 0.008 MPa 
-#Compute Gas Constant
-Ru = 8.3145 #J/mol/K
-gas.TPY = 298,101325,YFue
-MWFue = gas.mean_molecular_weight/1000 #kg/mole
-RFue =  Ru/MWFue #Gas constant of fuel J/kg/K
-gas.set_equivalence_ratio(1.0,fuel=YFue,oxidizer=YOxi,basis='mass')
-gas.TP = 298,101325
-gas.equilibrate('HP')
-MWPro = gas.mean_molecular_weight/1000
-Tadi = gas.T
-#Compute Forced Convection Term
-MachLiner = 0.35
-Gamma = 1.4
-Tstatic = Tinf/(1 + 0.5*(Gamma-1)*(MachLiner**2))
-gas.TPY = Tinf,Pref,YOxi
-MWOxi = gas.mean_molecular_weight/1000 #kg/mole
-ROxi = Ru/MWOxi #Gas constant of fuel J/kg/K
-velRel = np.sqrt(Gamma*ROxi*Tstatic)*MachLiner #Approximated Relative Velocity
-Re = (gas.density_mass*velRel*(2*rd))/gas.viscosity #Relative Reynold Number
-Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
-NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
-DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
-#Initialization
-rdBase = 10e-6 #m radius of droplet
-InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
-extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
-while abs(rdBase-rd)/rdBase >0.0001:
-    extArgs[7] = rdBase
-    Result = fsolve(Objective,InitGuess,args = extArgs)
-    rdBase = (rd-rdBase)/100 + rdBase
-    InitGuess = Result
-    print(abs(rdBase-rd)/rdBase)
-#Droplet Lifetime Integrator
-fracMassEvap = 0.1 #Until 10% of total mass
-fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
-time = np.linspace(0,1e-2,10000)
-rdLst = np.ones(len(time))*rd
-for i in range(1,len(time)):
-    rdCur = rdLst[i-1]
-    extArgs[7] = rdCur
-    Result = fsolve(Objective,InitGuess,args = extArgs)
-    InitGuess = Result
-    mdotFCur = Result[0]
-    rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
-    if rdLst[i] < rd*fracrdEvap:
-        rdLst = rdLst[:(i+1)]
-        time = time[:(i+1)]
-        break
-print(time)
-print(rdLst)
+#Define Function
+def DropletTime(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MachLiner,Gamma,fracMassEvap):
+    gas = ct.Solution(ReacMech)
+    #Compute Gas Constant
+    Ru = 8.3145 #J/mol/K
+    gas.TPY = 298,101325,YFue
+    MWFue = gas.mean_molecular_weight/1000 #kg/mole
+    RFue =  Ru/MWFue #Gas constant of fuel J/kg/K
+    gas.set_equivalence_ratio(1.0,fuel=YFue,oxidizer=YOxi,basis='mass')
+    gas.TP = 298,101325
+    gas.equilibrate('HP')
+    MWPro = gas.mean_molecular_weight/1000
+    Tadi = gas.T
+    #Compute Forced Convection Term
+    Tstatic = Tinf/(1 + 0.5*(Gamma-1)*(MachLiner**2))
+    gas.TPY = Tinf,Pref,YOxi
+    MWOxi = gas.mean_molecular_weight/1000 #kg/mole
+    ROxi = Ru/MWOxi #Gas constant of fuel J/kg/K
+    velRel = np.sqrt(Gamma*ROxi*Tstatic)*MachLiner #Approximated Relative Velocity
+    Re = (gas.density_mass*velRel*(2*rd))/gas.viscosity #Relative Reynold Number
+    Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
+    NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
+    DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
+    #Initialization
+    rdBase = 10e-6 #m radius of droplet
+    InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
+    extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
+    while abs(rdBase-rd)/rdBase >0.0001:
+        extArgs[7] = rdBase
+        Result = fsolve(Objective,InitGuess,args = extArgs)
+        rdBase = (rd-rdBase)/100 + rdBase
+        InitGuess = Result
+    #Droplet Lifetime Integrator
+    fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
+    time = np.linspace(0,1e-2,10000)
+    rdLst = np.ones(len(time))*rd
+    for i in range(1,len(time)):
+        rdCur = rdLst[i-1]
+        extArgs[7] = rdCur
+        Result = fsolve(Objective,InitGuess,args = extArgs)
+        InitGuess = Result
+        mdotFCur = Result[0]
+        rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
+        if rdLst[i] < rd*fracrdEvap:
+            rdLst = rdLst[:(i+1)]
+            time = time[:(i+1)]
+            print('Time Found')
+            break
+    return[time,rdLst]

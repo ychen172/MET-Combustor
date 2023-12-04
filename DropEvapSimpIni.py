@@ -1,0 +1,20 @@
+from DropEvapSimpFun import DropletTime
+YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
+YFue = "C2H5OH:1"
+ReacMech = 'CRECK2019-NOx-NoBin.yaml'
+Pref = 485501 #Pa
+Tinf = 487.233 #K
+Tdrop = 298 #K Droplet Temperature
+YOxiInf = 1.0 #Farfield Composition
+rd = 50e-6 #m radius of droplet
+rhol = 789 #kg/m3
+cpl = 2570 #J/kg/K
+LHVapor = 918187.9354880721 #J/kg
+LHVheat = 27728322.542190198 #J/kg
+FAst = 0.11107613244759687 #Stoichiometric Fuel Air Ratio
+TsatRef = 298 #K Fuel saturation temperature
+PsatRef = 0.008e6 #Pa 0.008 MPa 
+MachLiner = 0.35
+Gamma = 1.4
+fracMassEvap = 0.1 #Until 10% of total mass
+Result = DropletTime(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MachLiner,Gamma,fracMassEvap)
