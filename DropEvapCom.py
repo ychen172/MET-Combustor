@@ -48,3 +48,14 @@ plt.xlabel('Time [ms]')
 plt.title('Relative Mach Number '+str(MachLiner))
 plt.grid(True)
 plt.savefig("rdSquare.jpg")
+
+#Plot T Flame
+fig = plt.figure(dpi = 300)
+ax  = fig.add_subplot(1,1,1)
+for i in range(len(rdIniList)):
+    plt.plot(Result[i][1][:-1]*1e3, Result[i][9][:-1], label="rd: "+str(rdIniList[i]*1e6)+" um")
+plt.ylabel('Flame Temperature [K]')
+plt.xlabel('Time [ms]')
+plt.title('Relative Mach Number '+str(MachLiner))
+plt.grid(True)
+plt.savefig("TFlame.jpg")
