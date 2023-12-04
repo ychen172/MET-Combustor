@@ -1,5 +1,6 @@
 from DropEvapFun import EvapCalc
 import matplotlib.pyplot as plt
+import numpy as np
 #Parameters
 YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
 YFue = "C2H5OH:1"
@@ -43,7 +44,7 @@ fig = plt.figure(dpi = 300)
 ax  = fig.add_subplot(1,1,1)
 for i in range(len(rdIniList)):
     plt.plot(Result[i][1]*1e3, (Result[i][0]*1e6)**2)
-plt.ylabel('rd^2 [um2]')
+plt.ylabel('Square of Droplet Radius [um2]')
 plt.xlabel('Time [ms]')
 plt.title('Relative Mach Number '+str(MachLiner))
 plt.grid(True)
@@ -55,7 +56,19 @@ ax  = fig.add_subplot(1,1,1)
 for i in range(len(rdIniList)):
     plt.plot(Result[i][1][:-1]*1e3, Result[i][9][:-1], label="rd: "+str(rdIniList[i]*1e6)+" um")
 plt.ylabel('Flame Temperature [K]')
+plt.ylim([np.mean(Result[i][9][:-1])-5,np.mean(Result[i][9][:-1])+5])
 plt.xlabel('Time [ms]')
 plt.title('Relative Mach Number '+str(MachLiner))
 plt.grid(True)
 plt.savefig("TFlame.jpg")
+
+#Plot Droplet LifeTime
+fig = plt.figure(dpi = 300)
+ax  = fig.add_subplot(1,1,1)
+for i in range(len(rdIniList)):
+    plt.plot(rdIniList[i]*1e6,Result[i][1][-1]*1e3,'+')
+plt.ylabel('Droplet Lifetime [ms]')
+plt.xlabel('Initial Droplet Radius [um]')
+plt.title('Relative Mach Number '+str(MachLiner))
+plt.grid(True)
+plt.savefig("Droplife.jpg")
