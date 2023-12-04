@@ -119,11 +119,11 @@ DelTMLst = np.ones(len(time))
 NuLst = np.ones(len(time))
 ReLst = np.ones(len(time))
 PrLst = np.ones(len(time))
-velRel = np.ones(len(time))
+velRelLst = np.ones(len(time))
 for i in range(1,len(time)):
     rdCur = rdLst[i-1]
     extArgs[7] = rdCur
-    DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRel[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
+    DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRelLst[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
     extArgs[8] = DelTMLst[i-1]
     Result = fsolve(Objective,InitGuess,args = extArgs)
     InitGuess = Result
@@ -136,7 +136,7 @@ for i in range(1,len(time)):
         NuLst = NuLst[:(i+1)]
         ReLst = ReLst[:(i+1)]
         PrLst = PrLst[:(i+1)]
-        velRel = velRel[:(i+1)]
+        velRelLst = velRelLst[:(i+1)]
         break
 print(time)
 print(rdLst)
