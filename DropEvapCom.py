@@ -23,10 +23,10 @@ CycleName = "ACSRQLDerived_DualFine_EthaEthaOutPutTot.csv"
 Cycle = pd.read_csv(CycleName)
 TCycleLst = Cycle['Tt3[K]'].values[:]
 PCycleLst = Cycle['Pt3[Pa]'].values[:]
-PrefLst = PCycleLst[:] #485501 #Pa
-TinfLst = TCycleLst[:] #487.233 #K
+PrefLst = PCycleLst[-1:] #485501 #Pa
+TinfLst = TCycleLst[-1:] #487.233 #K
 #Test Conditions
-rdIniList = [50e-6,15e-6] #m radius of droplet
+rdIniList = [50e-6,25e-6,5e-6] #m radius of droplet
 #Solve
 Result = []
 for i in range(len(rdIniList)):
@@ -54,7 +54,7 @@ for i in range(len(rdIniList)):
     plt.plot(Result[i][0][1]*1e3, (Result[i][0][0]*1e6)**2)
 plt.ylabel('Square of Droplet Radius [um2]')
 plt.xlabel('Time [ms]')
-plt.title('Relative Mach Number '+str(MachLiner)+' Tinf: '+str(np.round(TinfLst[0],3))+' K Pinf: '+str(np.round(PrefLst[j],3))+' Pa')
+plt.title('Relative Mach Number '+str(MachLiner)+' Tinf: '+str(np.round(TinfLst[0],3))+' K Pinf: '+str(np.round(PrefLst[0],3))+' Pa')
 plt.grid(True)
 plt.savefig("rdSquare.jpg")
 
@@ -66,9 +66,20 @@ for i in range(len(rdIniList)):
 plt.ylabel('Flame Temperature [K]')
 plt.xlabel('Time [ms]')
 plt.legend()
-plt.title('Relative Mach Number '+str(MachLiner)+' Tinf: '+str(np.round(TinfLst[0],3))+' K Pinf: '+str(np.round(PrefLst[j],3))+' Pa')
+plt.title('Relative Mach Number '+str(MachLiner)+' Tinf: '+str(np.round(TinfLst[0],3))+' K Pinf: '+str(np.round(PrefLst[0],3))+' Pa')
 plt.grid(True)
 plt.savefig("TFlame.jpg")
+
+#Single Droplet Lifetime
+fig = plt.figure(dpi = 300)
+ax  = fig.add_subplot(1,1,1)
+for i in range(len(rdIniList)):
+    plt.plot(rdIniList[i]*1e6, Result[i][0][1][-1]*1e3, 'k+')
+plt.ylabel('Droplet Lifetime [ms]')
+plt.xlabel('Droplet Radius [um]')
+plt.title('Relative Mach Number '+str(MachLiner)+' Tinf: '+str(np.round(TinfLst[0],3))+' K Pinf: '+str(np.round(PrefLst[0],3))+' Pa')
+plt.grid(True)
+plt.savefig("SingleDroplife.jpg")
 
 #Combined Droplet Lifetime
 DropLifeTime = []
