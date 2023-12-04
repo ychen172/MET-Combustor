@@ -69,91 +69,72 @@ def Objective(vars,extArgs):
     ResSaturation = (A*np.exp(-B/Ts)*MWFue)/(A*np.exp(-B/Ts)*MWFue + (Pref-A*np.exp(-B/Ts))*MWPro)  -  YFs
     return [ResInnerMass,ResOuterMass,ResInnerEnergy,ResOuterEnergy,ResSaturation]
 
-#DesignParameters
-YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
-YFue = "C2H5OH:1"
-gas = ct.Solution('CRECK2019-NOx-NoBin.yaml')
-Pref = 485501 #Pa
-Tinf = 487.233 #K
-Tdrop = 298 #K Droplet Temperature
-YOxiInf = 1.0 #Farfield Composition
-rd = 50e-6 #m radius of droplet
-rhol = 789 #kg/m3
-cpl = 2570 #J/kg/K
-LHVapor = 918187.9354880721 #J/kg
-LHVheat = 27728322.542190198 #J/kg
-FAst = 0.11107613244759687 #Stoichiometric Fuel Air Ratio
-TsatRef = 298 #K Fuel saturation temperature
-PsatRef = 0.008e6 #Pa 0.008 MPa 
-#Compute Gas Constant
-Ru = 8.3145 #J/mol/K
-gas.TPY = 298,101325,YFue
-MWFue = gas.mean_molecular_weight/1000 #kg/mole
-RFue =  Ru/MWFue #Gas constant of fuel J/kg/K
-gas.set_equivalence_ratio(1.0,fuel=YFue,oxidizer=YOxi,basis='mass')
-gas.TP = 298,101325
-gas.equilibrate('HP')
-MWPro = gas.mean_molecular_weight/1000
-Tadi = gas.T
-#Compute Forced Convection Term
-MachLiner = 0.35
-Gamma = 1.4
-#Initialization
-rdBase = 10e-6 #m radius of droplet
-DelTM, dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
-InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
-extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
-while abs(rdBase-rd)/rdBase >0.0001:
-    extArgs[7] = rdBase
-    extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
-    Result = fsolve(Objective,InitGuess,args = extArgs)
-    rdBase = (rd-rdBase)/100 + rdBase
-    InitGuess = Result
-    print(abs(rdBase-rd)/rdBase)
-#Droplet Lifetime Integrator
-fracMassEvap = 0.1 #Until 10% of total mass
-fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
-time = np.linspace(0,1e-2,10000)
-rdLst = np.ones(len(time))*rd
-DelTMLst = np.ones(len(time))
-NuLst = np.ones(len(time))
-ReLst = np.ones(len(time))
-PrLst = np.ones(len(time))
-velRelLst = np.ones(len(time))
-mdotFLst = np.ones(len(time))
-rFLst = np.ones(len(time))
-TFLst = np.ones(len(time))
-TSLst = np.ones(len(time))
-YSLst = np.ones(len(time))
-for i in range(1,len(time)):
-    rdCur = rdLst[i-1]
-    extArgs[7] = rdCur
-    DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRelLst[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
-    extArgs[8] = DelTMLst[i-1]
-    Result = fsolve(Objective,InitGuess,args = extArgs)
-    InitGuess = Result
-    mdotFCur = Result[0]
-    #Save History of Vaporization
-    mdotFLst[i-1] = Result[0]
-    rFLst[i-1] = Result[1]
-    TFLst[i-1] = Result[2]
-    TSLst[i-1] = Result[3]
-    YSLst[i-1] = Result[4]
-    #Save History of Vaporization
-    rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
-    if rdLst[i] < rd*fracrdEvap:
-        rdLst = rdLst[:(i+1)]
-        time = time[:(i+1)]
-        DelTMLst = DelTMLst[:(i+1)]
-        NuLst = NuLst[:(i+1)]
-        ReLst = ReLst[:(i+1)]
-        PrLst = PrLst[:(i+1)]
-        velRelLst = velRelLst[:(i+1)]
-        mdotFLst = mdotFLst[:(i+1)]
-        rFLst = rFLst[:(i+1)]
-        TFLst = TFLst[:(i+1)]
-        TSLst = TSLst[:(i+1)]
-        YSLst = YSLst[:(i+1)]
-        break
-print(time)
-print(rdLst)
+def EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MachLiner,Gamma,fracMassEvap):
+    gas = ct.Solution(ReacMech)
+    #Compute Gas Constant
+    Ru = 8.3145 #J/mol/K
+    gas.TPY = 298,101325,YFue
+    MWFue = gas.mean_molecular_weight/1000 #kg/mole
+    RFue =  Ru/MWFue #Gas constant of fuel J/kg/K
+    gas.set_equivalence_ratio(1.0,fuel=YFue,oxidizer=YOxi,basis='mass')
+    gas.TP = 298,101325
+    gas.equilibrate('HP')
+    MWPro = gas.mean_molecular_weight/1000
+    Tadi = gas.T
+    #Initialization
+    rdBase = 10e-6 #m radius of droplet
+    DelTM, dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
+    InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
+    extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
+    while abs(rdBase-rd)/rdBase >0.0001:
+        extArgs[7] = rdBase
+        extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
+        Result = fsolve(Objective,InitGuess,args = extArgs)
+        rdBase = (rd-rdBase)/100 + rdBase
+        InitGuess = Result
+    #Droplet Lifetime Integrator
+    fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
+    time = np.linspace(0,1e-2,10000)
+    rdLst = np.ones(len(time))*rd
+    DelTMLst = np.ones(len(time))
+    NuLst = np.ones(len(time))
+    ReLst = np.ones(len(time))
+    PrLst = np.ones(len(time))
+    velRelLst = np.ones(len(time))
+    mdotFLst = np.ones(len(time))
+    rFLst = np.ones(len(time))
+    TFLst = np.ones(len(time))
+    TSLst = np.ones(len(time))
+    YSLst = np.ones(len(time))
+    for i in range(1,len(time)):
+        rdCur = rdLst[i-1]
+        extArgs[7] = rdCur
+        DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRelLst[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
+        extArgs[8] = DelTMLst[i-1]
+        Result = fsolve(Objective,InitGuess,args = extArgs)
+        InitGuess = Result
+        mdotFCur = Result[0]
+        #Save History of Vaporization
+        mdotFLst[i-1] = Result[0]
+        rFLst[i-1] = Result[1]
+        TFLst[i-1] = Result[2]
+        TSLst[i-1] = Result[3]
+        YSLst[i-1] = Result[4]
+        #Save History of Vaporization
+        rdLst[i] = rdCur + ((-mdotFCur)/(4*np.pi*rhol*(rdCur**2)))*(time[i]-time[i-1])
+        if rdLst[i] < rd*fracrdEvap:
+            rdLst = rdLst[:(i+1)]
+            time = time[:(i+1)]
+            DelTMLst = DelTMLst[:(i+1)]
+            NuLst = NuLst[:(i+1)]
+            ReLst = ReLst[:(i+1)]
+            PrLst = PrLst[:(i+1)]
+            velRelLst = velRelLst[:(i+1)]
+            mdotFLst = mdotFLst[:(i+1)]
+            rFLst = rFLst[:(i+1)]
+            TFLst = TFLst[:(i+1)]
+            TSLst = TSLst[:(i+1)]
+            YSLst = YSLst[:(i+1)]
+            print("Time Found")
+            break
+    return [rdLst,time,DelTMLst,NuLst,ReLst,PrLst,velRelLst,mdotFLst,rFLst,TFLst,TSLst,YSLst]
