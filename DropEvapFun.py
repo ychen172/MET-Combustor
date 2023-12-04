@@ -83,14 +83,20 @@ def EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVh
     Tadi = gas.T
     #Initialization
     rdBase = 10e-6 #m radius of droplet
+    TinfBase = 487.233
+    PrefBase = 485501
     DelTM, dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase,gas)
     InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
     extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
     while abs(rdBase-rd)/rdBase >0.0001:
         extArgs[7] = rdBase
-        extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase,gas)
+        extArgs[8], dummy1, dummy2, dummy3, dummy4 = DelTMCalc(MachLiner,Gamma,TinfBase,PrefBase,YOxi,Ru,rdBase,gas)
+        extArgs[3] = PrefBase
+        extArgs[4] = TinfBase
         Result = fsolve(Objective,InitGuess,args = extArgs)
         rdBase = (rd-rdBase)/100 + rdBase
+        TinfBase = (Tinf-TinfBase)/100 + TinfBase
+        PrefBase = (Pref-PrefBase)/100 + PrefBase
         InitGuess = Result
     #Droplet Lifetime Integrator
     fracrdEvap = fracMassEvap**(1/3) #Stop Criterion for radius
@@ -111,6 +117,8 @@ def EvapCalc(YOxi,YFue,ReacMech,Pref,Tinf,Tdrop,YOxiInf,rd,rhol,cpl,LHVapor,LHVh
         extArgs[7] = rdCur
         DelTMLst[i-1],NuLst[i-1],ReLst[i-1],PrLst[i-1],velRelLst[i-1] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur,gas)
         extArgs[8] = DelTMLst[i-1]
+        extArgs[3] = Pref
+        extArgs[4] = Tinf
         Result = fsolve(Objective,InitGuess,args = extArgs)
         InitGuess = Result
         mdotFCur = Result[0]
