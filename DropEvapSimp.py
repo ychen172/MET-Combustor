@@ -2,6 +2,19 @@ import numpy as np
 import cantera as ct
 from scipy.optimize import fsolve
 from scipy.integrate import odeint
+#Compute Forced Convection Term
+def DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rd):
+    Tstatic = Tinf/(1 + 0.5*(Gamma-1)*(MachLiner**2))
+    gas.TPY = Tinf,Pref,YOxi
+    MWOxi = gas.mean_molecular_weight/1000 #kg/mole
+    ROxi = Ru/MWOxi #Gas constant of fuel J/kg/K
+    velRel = np.sqrt(Gamma*ROxi*Tstatic)*MachLiner #Approximated Relative Velocity
+    Re = (gas.density_mass*velRel*(2*rd))/gas.viscosity #Relative Reynold Number
+    Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
+    NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
+    DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
+    return DelTM
+
 def Objective(vars,extArgs):
     YOxi    = extArgs[0] #Composition of Oxidizer
     YFue    = extArgs[1] #Composition of Fuel
@@ -85,21 +98,14 @@ Tadi = gas.T
 #Compute Forced Convection Term
 MachLiner = 0.35
 Gamma = 1.4
-Tstatic = Tinf/(1 + 0.5*(Gamma-1)*(MachLiner**2))
-gas.TPY = Tinf,Pref,YOxi
-MWOxi = gas.mean_molecular_weight/1000 #kg/mole
-ROxi = Ru/MWOxi #Gas constant of fuel J/kg/K
-velRel = np.sqrt(Gamma*ROxi*Tstatic)*MachLiner #Approximated Relative Velocity
-Re = (gas.density_mass*velRel*(2*rd))/gas.viscosity #Relative Reynold Number
-Pr = (gas.viscosity*gas.cp_mass)/gas.thermal_conductivity #Relative Prandtl Number
-NuSh = 2+(0.555*Re**(1/2)*Pr**(1/3))/((1+1.232/(Re*Pr**(4/3)))**(1/2))
-DelTM = (NuSh/(NuSh-2))*rd #Unity Lewis Number Nu = Sh and so DelT = DelM
 #Initialization
 rdBase = 10e-6 #m radius of droplet
+DelTM = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
 InitGuess = [1e-9,rdBase*1.1,Tadi,Tdrop,0.5]
 extArgs = [YOxi,YFue,gas,Pref,Tinf,Tdrop,YOxiInf,rd,DelTM,cpl,LHVapor,LHVheat,FAst,TsatRef,PsatRef,MWFue,RFue,MWPro]
 while abs(rdBase-rd)/rdBase >0.0001:
     extArgs[7] = rdBase
+    extArgs[8] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdBase)
     Result = fsolve(Objective,InitGuess,args = extArgs)
     rdBase = (rd-rdBase)/100 + rdBase
     InitGuess = Result
@@ -112,6 +118,7 @@ rdLst = np.ones(len(time))*rd
 for i in range(1,len(time)):
     rdCur = rdLst[i-1]
     extArgs[7] = rdCur
+    extArgs[8] = DelTMCalc(MachLiner,Gamma,Tinf,Pref,YOxi,Ru,rdCur)
     Result = fsolve(Objective,InitGuess,args = extArgs)
     InitGuess = Result
     mdotFCur = Result[0]
