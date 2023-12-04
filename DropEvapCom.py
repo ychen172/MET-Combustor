@@ -1,6 +1,7 @@
 from DropEvapFun import EvapCalc
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 #Parameters
 YOxi = "O2:0.2314,N2:0.7622,H2O:0.0064"
 YFue = "C2H5OH:1"
@@ -19,6 +20,11 @@ PsatRef = 0.008e6 #Pa 0.008 MPa
 MachLiner = 0.35
 Gamma = 1.4
 fracMassEvap = 0.1
+#Read Cycle Data
+CycleName = "ACSRQLDerived_DualFine_EthaEthaOutPutTot.csv"
+Cycle = pd.read_csv(CycleName)
+TCycleLst = Cycle['Tt3[K]'].values[:]
+PCycleLst = Cycle['Pt3[Pa]'].values[:]
 #Test Conditions
 rdIniList = [50e-6,30e-6,10e-6] #m radius of droplet
 #Solve
