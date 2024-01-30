@@ -92,10 +92,10 @@ LszLpzR = 1.64 #length of secondary zone over primary zone
 PHRjpz = 0.1 #Fraction of the liner height for penetration
 PHRsz = 0.445 #Fraction of the liner height for penetration
 PHRdz = 0.102 #Fraction of the liner height for penetration
-velRatJetFuel = 7.1 #Ufuel/UJetAirPz
+velRatJetFuel = 4.6424 #Ufuel/UJetAirPz
 fracPzFuelPipe = 1 #Frac of primary zone air use for vaporization
-numPzFuelInj = 20 #Number of primary zone fuel injectors
-thiPipeFuel = 0.508/1000 #[m] Thickness of copper and stainless steel pipeline
+numPzFuelInj = 12 #Number of primary zone fuel injectors
+thiPipeFuel = 0.3556/1000 #[m] Thickness of copper and stainless steel pipeline
 thiPipeAir = 0.1778/1000 #[m] Thickness of copper and stainless steel pipeline
 # Reference parameters
 Patm  = 101325  #Reference atmosphere pressure [Pa]
